@@ -1,24 +1,13 @@
-# Fatal Labyrinth Clone (Haxe/Heaps)
+# Fatal Labyrinth - Haxe Edition
 
-A roguelike dungeon crawler inspired by Fatal Labyrinth.
+A roguelike dungeon crawler built with Haxe and Heaps.io.
 
 ## Controls
-- **Arrow Keys**: Move / Attack
-- **Space/Enter**: Select / Next
-- **ESC**: Save & Quit to Menu
+- **Arrows / WASD**: Move
+- **Enter**: Select in Menu
+- **Escape**: Save & Quit to Menu
 
-## Features
-- Procedural Level Generation
-- Turn-based Combat
-- Progression System (Floors, Gold)
-- Save/Load System
-- Inventory UI
-
-## Build
-Requires Haxe 4+ and HashLink.
-```bash
-haxelib install heaps
-haxelib install hlsdl
-haxe compile.hxml
-hl fatal_labyrinth.hl
-```
+## How to Run
+1. Install Haxe 4+
+2. Install libraries: `haxelib install heaps`, `haxelib install hlsdl`
+3. Compile and run: `haxe compile.hxml`
