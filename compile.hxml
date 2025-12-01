@@ -1,7 +1,6 @@
 -cp src
 -lib heaps
 -lib hlsdl
--hl fatal_labyrinth.hl
+-hl hello.hl
 -main Main
 -D windowSize=1280x720
--D windowTitle=Fatal Labyrinth Haxe
