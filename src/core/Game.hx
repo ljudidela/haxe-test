@@ -1,51 +1,48 @@
 package core;
 
 class Game {
-    public static var level:Int = 1;
-    public static var playerHp:Int = 100;
-    public static var playerMaxHp:Int = 100;
-    public static var gold:Int = 0;
-    public static var inventory:Array<String> = [];
+    public static var inst(default, null):Game = new Game();
+
+    public var level:Int = 1;
+    public var hp:Int = 100;
+    public var maxHp:Int = 100;
+    public var gold:Int = 0;
+    public var xp:Int = 0;
     
-    public static function init() {
-        load();
-    }
+    // Persistence
+    public function new() {}
 
-    public static function newGame() {
+    public function reset() {
         level = 1;
-        playerHp = 100;
-        playerMaxHp = 100;
+        hp = 100;
+        maxHp = 100;
         gold = 0;
-        inventory = ["Dagger", "Potion"];
+        xp = 0;
     }
 
-    public static function save() {
+    public function save() {
         var data = {
             level: level,
-            hp: playerHp,
-            maxHp: playerMaxHp,
+            hp: hp,
+            maxHp: maxHp,
             gold: gold,
-            inv: inventory
+            xp: xp
         };
         hxd.Save.save(data, "savefile");
     }
 
-    public static function load() {
+    public function load():Bool {
         try {
             var data = hxd.Save.load(null, "savefile");
-            if (data != null) {
-                level = data.level;
-                playerHp = data.hp;
-                playerMaxHp = data.maxHp;
-                gold = data.gold;
-                inventory = data.inv;
-            }
+            if (data == null) return false;
+            level = data.level;
+            hp = data.hp;
+            maxHp = data.maxHp;
+            gold = data.gold;
+            xp = data.xp;
+            return true;
         } catch(e:Dynamic) {
-            trace("No save found");
+            return false;
         }
-    }
-
-    public static function hasSave():Bool {
-        return hxd.Save.load(null, "savefile") != null;
     }
 }
