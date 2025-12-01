@@ -1,43 +1,41 @@
 package ui;
 
-import h2d.Object;
-import h2d.Text;
 import h2d.Flow;
-import core.Game;
+import h2d.Text;
+import hxd.res.DefaultFont;
 
-class Hud extends Object {
-    var txtHp:Text;
-    var txtLevel:Text;
-    var txtGold:Text;
-    var txtInv:Text;
+class Hud extends h2d.Object {
+    var flow:Flow;
+    var hpText:Text;
+    var levelText:Text;
+    var floorText:Text;
+    var msgText:Text;
 
-    public function new(parent:Object) {
+    public function new(parent:h2d.Object) {
         super(parent);
-        var font = hxd.res.DefaultFont.get();
         
-        var flow = new Flow(this);
+        flow = new Flow(this);
         flow.layout = Horizontal;
-        flow.spacing = 20;
         flow.padding = 10;
-        flow.x = 10;
-        flow.y = 10;
-
-        txtHp = new Text(font, flow);
-        txtLevel = new Text(font, flow);
-        txtGold = new Text(font, flow);
-        txtInv = new Text(font, this);
-        txtInv.y = 40;
-        txtInv.x = 20;
+        flow.spacing = 20;
+        flow.y = Const.GRID_H * Const.TILE_SIZE;
         
-        updateStats();
+        var font = DefaultFont.get();
+        
+        hpText = new Text(font, flow);
+        levelText = new Text(font, flow);
+        floorText = new Text(font, flow);
+        msgText = new Text(font, flow);
+        msgText.textColor = Const.C_HIGHLIGHT;
     }
 
-    public function updateStats() {
-        txtHp.text = "HP: " + Game.playerHp + "/" + Game.playerMaxHp;
-        txtLevel.text = "FLOOR: " + Game.level;
-        txtGold.text = "GOLD: " + Game.gold;
-        txtInv.text = "INVENTORY: " + Game.inventory.join(", ");
-        
-        txtHp.textColor = (Game.playerHp < 30) ? 0xFF0000 : 0xFFFFFF;
+    public function updateStats(hp:Int, max:Int, lvl:Int, floor:Int) {
+        hpText.text = "HP: " + hp + " / " + max;
+        levelText.text = "LVL: " + lvl;
+        floorText.text = "FLOOR: " + floor;
+    }
+
+    public function showMessage(msg:String) {
+        msgText.text = msg;
     }
 }
