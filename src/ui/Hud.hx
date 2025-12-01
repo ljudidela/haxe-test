@@ -3,59 +3,41 @@ package ui;
 import h2d.Object;
 import h2d.Text;
 import h2d.Flow;
-import h2d.Bitmap;
-import h2d.Tile;
+import core.Game;
 
 class Hud extends Object {
-    var hpText:Text;
-    var floorText:Text;
-    var goldText:Text;
-    var logText:Text;
+    var txtHp:Text;
+    var txtLevel:Text;
+    var txtGold:Text;
+    var txtInv:Text;
 
     public function new(parent:Object) {
         super(parent);
-        
-        // Background bar
-        var bg = new Bitmap(Tile.fromColor(Const.COLOR_UI_BG, 1280, 60), this);
-        bg.y = 720 - 60;
-        bg.alpha = 0.8;
-
-        var flow = new Flow(this);
-        flow.y = 720 - 50;
-        flow.x = 20;
-        flow.horizontalSpacing = 40;
-
         var font = hxd.res.DefaultFont.get();
-
-        hpText = new Text(font, flow);
-        hpText.scale(1.5);
         
-        floorText = new Text(font, flow);
-        floorText.scale(1.5);
+        var flow = new Flow(this);
+        flow.layout = Horizontal;
+        flow.spacing = 20;
+        flow.padding = 10;
+        flow.x = 10;
+        flow.y = 10;
 
-        goldText = new Text(font, flow);
-        goldText.scale(1.5);
-        goldText.textColor = 0xFFFF00;
-
-        logText = new Text(font, this);
-        logText.x = 20;
-        logText.y = 20;
-        logText.textColor = 0xAAAAAA;
+        txtHp = new Text(font, flow);
+        txtLevel = new Text(font, flow);
+        txtGold = new Text(font, flow);
+        txtInv = new Text(font, this);
+        txtInv.y = 40;
+        txtInv.x = 20;
+        
+        updateStats();
     }
 
-    public function updateStats(hp:Int, maxHp:Int, floor:Int, gold:Int) {
-        hpText.text = "HP: " + hp + " / " + maxHp;
-        floorText.text = "FLOOR: " + floor;
-        goldText.text = "GOLD: " + gold;
-    }
-
-    public function updateLog(msg:String) {
-        // Simple log update
-    }
-
-    public function addLog(msg:String) {
-        logText.text = msg;
-        logText.alpha = 1;
-        haxe.Timer.delay(() -> logText.alpha = 0, 3000);
+    public function updateStats() {
+        txtHp.text = "HP: " + Game.playerHp + "/" + Game.playerMaxHp;
+        txtLevel.text = "FLOOR: " + Game.level;
+        txtGold.text = "GOLD: " + Game.gold;
+        txtInv.text = "INVENTORY: " + Game.inventory.join(", ");
+        
+        txtHp.textColor = (Game.playerHp < 30) ? 0xFF0000 : 0xFFFFFF;
     }
 }
