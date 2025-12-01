@@ -1,57 +1,52 @@
 package world;
 
-import hxd.Key;
-
 class Player extends Entity {
-    public var hp:Int = 100;
-    public var maxHp:Int = 100;
-    public var gold:Int = 0;
+    public var hp:Int;
+    public var maxHp:Int;
+    public var level:Int;
+    public var xp:Int;
+    public var gold:Int;
 
-    public function new(level:Level, x:Int, y:Int) {
-        super(level, x, y, Const.COLOR_PLAYER);
-        hxd.Window.getInstance().addEventTarget(onEvent);
+    public function new(game:Game, x:Int, y:Int) {
+        super(game, x, y, Const.C_PLAYER);
+        // Default stats
+        hp = 100;
+        maxHp = 100;
+        level = 1;
+        xp = 0;
+        gold = 0;
     }
 
-    override function onRemove() {
-        hxd.Window.getInstance().removeEventTarget(onEvent);
-        super.onRemove();
-    }
+    public function tryMove(dx:Int, dy:Int):Bool {
+        var tx = cx + dx;
+        var ty = cy + dy;
 
-    function onEvent(e:hxd.Event) {
-        if (e.kind == EKeyDown) {
-            var dx = 0;
-            var dy = 0;
-            
-            switch(e.keyCode) {
-                case Key.UP, Key.W: dy = -1;
-                case Key.DOWN, Key.S: dy = 1;
-                case Key.LEFT, Key.A: dx = -1;
-                case Key.RIGHT, Key.D: dx = 1;
-                case Key.ESCAPE: Main.inst.showMenu(); return;
-            }
-
-            if (dx != 0 || dy != 0) {
-                move(dx, dy);
-            }
+        if (game.level.isWall(tx, ty)) {
+            return false;
         }
+
+        cx = tx;
+        cy = ty;
+        updatePos();
+        return true;
     }
 
-    function move(dx:Int, dy:Int) {
-        var nx = cx + dx;
-        var ny = cy + dy;
+    public function loadStats(data:Dynamic) {
+        if (data == null) return;
+        hp = data.hp;
+        maxHp = data.maxHp;
+        level = data.level;
+        xp = data.xp;
+        gold = data.gold;
+    }
 
-        if (level.isWalkable(nx, ny)) {
-            cx = nx;
-            cy = ny;
-            updatePos();
-            
-            // Check interactions
-            var t = level.getTile(cx, cy);
-            if (t == 2) { // Stairs
-                Main.inst.game.nextLevel();
-            }
-            
-            Main.inst.game.onTurn();
-        }
+    public function getSaveData():Dynamic {
+        return {
+            hp: hp,
+            maxHp: maxHp,
+            level: level,
+            xp: xp,
+            gold: gold
+        };
     }
 }
