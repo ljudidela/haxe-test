@@ -1,29 +1,33 @@
 package world;
 
 import h2d.Object;
-import h2d.Bitmap;
-import h2d.Tile;
+import h2d.Graphics;
 
-class Entity extends Object {
+class Entity {
     public var cx:Int;
     public var cy:Int;
-    public var level:Level;
-    var sprite:Bitmap;
+    public var sprite:Graphics;
+    public var hp:Int = 100;
+    var tileSize:Int = 32;
 
-    public function new(level:Level, x:Int, y:Int, color:Int) {
-        super(level);
-        this.level = level;
+    public function new(x:Int, y:Int, color:Int, parent:Object) {
         this.cx = x;
         this.cy = y;
         
-        var t = Tile.fromColor(color, Const.TILE_SIZE, Const.TILE_SIZE);
-        sprite = new Bitmap(t, this);
+        sprite = new Graphics(parent);
+        sprite.beginFill(color);
+        sprite.drawCircle(tileSize/2, tileSize/2, tileSize/2 - 2);
+        sprite.endFill();
         
         updatePos();
     }
 
     public function updatePos() {
-        this.x = cx * Const.TILE_SIZE;
-        this.y = cy * Const.TILE_SIZE;
+        sprite.x = cx * tileSize;
+        sprite.y = cy * tileSize;
+    }
+
+    public function remove() {
+        sprite.remove();
     }
 }
