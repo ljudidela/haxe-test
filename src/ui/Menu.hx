@@ -1,54 +1,75 @@
 package ui;
 
-import h2d.Flow;
 import h2d.Text;
+import h2d.Flow;
 import hxd.Event;
+import hxd.res.DefaultFont;
 
 class Menu extends h2d.Object {
+    var items:Array<Text> = [];
+    var selected:Int = 0;
+    var flow:Flow;
+
     public function new(parent:h2d.Object) {
         super(parent);
         
-        var flow = new Flow(this);
+        var title = new Text(DefaultFont.get(), this);
+        title.text = "FATAL LABYRINTH: HAXE EDITION";
+        title.scale(2);
+        title.x = 100;
+        title.y = 50;
+
+        flow = new Flow(this);
         flow.layout = Vertical;
-        flow.verticalSpacing = 20;
-        flow.horizontalAlign = Middle;
-        flow.fillWidth = true;
-        flow.fillHeight = true;
+        flow.spacing = 10;
+        flow.x = 100;
+        flow.y = 150;
 
-        var font = hxd.res.DefaultFont.get();
-        
-        var title = new Text(font, flow);
-        title.text = "FATAL LABYRINTH: REBORN";
-        title.scale(3);
-        title.textColor = 0xFF0000;
+        addItem("New Game", () -> Main.inst.startStory());
+        addItem("Continue", () -> Main.inst.startGame(true));
+        addItem("Settings", () -> trace("Settings clicked"));
+        addItem("Exit", () -> hxd.System.exit());
 
-        addSpacer(flow, 50);
-
-        addButton(flow, "NEW GAME", () -> Main.inst.startNewGame());
-        
-        var continueBtn = addButton(flow, "CONTINUE", () -> Main.inst.continueGame());
-        if (!Main.inst.hasSave) continueBtn.alpha = 0.5;
-
-        addButton(flow, "SETTINGS", () -> trace("Settings clicked"));
-        addButton(flow, "EXIT", () -> Main.inst.exitGame());
+        updateSelection();
     }
 
-    function addSpacer(flow:Flow, h:Int) {
-        var s = new h2d.Object(flow);
-        flow.getProperties(s).minHeight = h;
-    }
-
-    function addButton(flow:Flow, label:String, onClick:Void->Void):h2d.Object {
-        var t = new Text(hxd.res.DefaultFont.get(), flow);
+    function addItem(label:String, onClick:Void->Void) {
+        var t = new Text(DefaultFont.get(), flow);
         t.text = label;
-        t.scale(2);
+        t.scale(1.5);
         
-        var i = new h2d.Interactive(t.textWidth * 2, t.textHeight * 2, t);
-        i.onOver = (_) -> t.textColor = 0xFFFF00;
-        i.onOut = (_) -> t.textColor = 0xFFFFFF;
-        i.onClick = (_) -> {
-            if (t.alpha == 1) onClick();
+        // Interactive setup
+        var i = new h2d.Interactive(100, 20, t);
+        i.onClick = (_) -> onClick();
+        i.onOver = (_) -> {
+            selected = items.indexOf(t);
+            updateSelection();
         };
-        return t;
+        
+        items.push(t);
+    }
+
+    function updateSelection() {
+        for (i in 0...items.length) {
+            items[i].textColor = (i == selected) ? Const.C_HIGHLIGHT : Const.C_TEXT;
+        }
+    }
+
+    public function onEvent(e:Event) {
+        if (e.kind == EKeyDown) {
+            if (e.keyCode == hxd.Key.UP) {
+                selected--;
+                if (selected < 0) selected = items.length - 1;
+                updateSelection();
+            } else if (e.keyCode == hxd.Key.DOWN) {
+                selected++;
+                if (selected >= items.length) selected = 0;
+                updateSelection();
+            } else if (e.keyCode == hxd.Key.ENTER) {
+                // Trigger click on selected
+                var interactive = cast(items[selected].getComponents()[0], h2d.Interactive);
+                interactive.onClick(new Event(EClick));
+            }
+        }
     }
 }
