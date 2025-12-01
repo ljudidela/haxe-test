@@ -1,62 +1,46 @@
 package world;
 
 class LevelGenerator {
-    var width:Int;
-    var height:Int;
+    public static function generate(w:Int, h:Int):{map:Array<Array<Int>>, start:{x:Int, y:Int}} {
+        var map = [for (y in 0...h) [for (x in 0...w) 0]];
+        
+        // Simple Random Walk for guaranteed connectivity
+        var cx = Std.int(w / 2);
+        var cy = Std.int(h / 2);
+        var start = {x: cx, y: cy};
+        
+        var floorCount = 0;
+        var targetFloors = Std.int(w * h * 0.4);
 
-    public function new(w:Int, h:Int) {
-        this.width = w;
-        this.height = h;
-    }
-
-    public function generate():Array<Array<Int>> {
-        var map = [for (y in 0...height) [for (x in 0...width) 1]];
-
-        // Simple Room Generation
-        var rooms = [];
-        for (i in 0...10) {
-            var w = 4 + Std.random(6);
-            var h = 4 + Std.random(6);
-            var x = 1 + Std.random(width - w - 2);
-            var y = 1 + Std.random(height - h - 2);
-            
-            // Carve room
-            for (ry in y...y+h) {
-                for (rx in x...x+w) {
-                    map[ry][rx] = 0;
-                }
+        while (floorCount < targetFloors) {
+            if (map[cy][cx] == 0) {
+                map[cy][cx] = 1;
+                floorCount++;
             }
-            rooms.push({x: x + Std.int(w/2), y: y + Std.int(h/2)});
-        }
-
-        // Connect rooms
-        for (i in 0...rooms.length - 1) {
-            var r1 = rooms[i];
-            var r2 = rooms[i+1];
             
-            // Horizontal corridor
-            var minX = r1.x < r2.x ? r1.x : r2.x;
-            var maxX = r1.x > r2.x ? r1.x : r2.x;
-            for (x in minX...maxX + 1) map[r1.y][x] = 0;
+            var dir = Std.random(4);
+            if (dir == 0) cx++;
+            else if (dir == 1) cx--;
+            else if (dir == 2) cy++;
+            else if (dir == 3) cy--;
 
-            // Vertical corridor
-            var minY = r1.y < r2.y ? r1.y : r2.y;
-            var maxY = r1.y > r2.y ? r1.y : r2.y;
-            for (y in minY...maxY + 1) map[y][r2.x] = 0;
+            if (cx < 1) cx = 1;
+            if (cx >= w - 1) cx = w - 2;
+            if (cy < 1) cy = 1;
+            if (cy >= h - 1) cy = h - 2;
         }
 
-        // Place Stairs in the last room
-        var last = rooms[rooms.length - 1];
-        map[last.y][last.x] = 2;
-
-        return map;
-    }
-
-    public function getFreeSpot(map:Array<Array<Int>>):{x:Int, y:Int} {
-        while(true) {
-            var x = Std.random(width);
-            var y = Std.random(height);
-            if (map[y][x] == 0) return {x: x, y: y};
+        // Place stairs far from start (simple random try)
+        var stairsPlaced = false;
+        while(!stairsPlaced) {
+            var sx = Std.random(w);
+            var sy = Std.random(h);
+            if (map[sy][sx] == 1 && (Math.abs(sx - start.x) + Math.abs(sy - start.y) > 10)) {
+                map[sy][sx] = 2;
+                stairsPlaced = true;
+            }
         }
+
+        return {map: map, start: start};
     }
 }
