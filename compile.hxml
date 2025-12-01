@@ -1,6 +1,6 @@
 -cp src
 -lib heaps
 -lib hlsdl
--hl hello.hl
+-hl bin/game.hl
 -main Main
 -D windowSize=1280x720
