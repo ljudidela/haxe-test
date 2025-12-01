@@ -1,81 +1,45 @@
 package scenes;
 
-import h2d.Scene;
-import h2d.Text;
-import hxd.Event;
-import hxd.System;
-import core.Game;
+import hxd.Key;
 
-class MenuScene extends Scene {
-    var items:Array<Text> = [];
-    var selected:Int = 0;
-    var menuOptions:Array<{name:String, action:Void->Void}>;
+class MenuScene extends h2d.Scene {
+    var menu:ui.Menu;
 
     public function new() {
         super();
-        var font = hxd.res.DefaultFont.get();
-        
-        var title = new Text(font, this);
-        title.text = "FATAL LABYRINTH";
-        title.scale(4);
+        var title = new h2d.Text(hxd.res.DefaultFont.get(), this);
+        title.text = "FATAL LABYRINTH: HAXE EDITION";
+        title.scale(3);
+        title.x = 100;
+        title.y = 50;
         title.textColor = 0xFF0000;
-        title.x = (getScene().width - title.textWidth * 4) / 2;
-        title.y = 100;
 
-        menuOptions = [
-            { name: "NEW GAME", action: onNewGame },
-            { name: "CONTINUE", action: onContinue },
-            { name: "SETTINGS", action: onSettings },
-            { name: "EXIT", action: onExit }
-        ];
+        menu = new ui.Menu(this);
+        menu.x = 100;
+        menu.y = 200;
 
-        for (i in 0...menuOptions.length) {
-            var t = new Text(font, this);
-            t.text = menuOptions[i].name;
-            t.scale(2);
-            t.x = (getScene().width - t.textWidth * 2) / 2;
-            t.y = 300 + i * 50;
-            items.push(t);
-            
-            // Mouse interaction
-            var interactive = new h2d.Interactive(t.textWidth * 2, t.textHeight * 2, t);
-            interactive.onOver = function(_) selected = i;
-            interactive.onClick = function(_) menuOptions[i].action();
-        }
+        menu.addItem("NEW GAME", function() {
+            core.Game.inst.reset();
+            Main.inst.setScene(new scenes.StoryScene());
+        });
+
+        menu.addItem("CONTINUE", function() {
+            if (core.Game.inst.load()) {
+                Main.inst.setScene(new scenes.PlayScene());
+            } else {
+                // Shake effect or sound could go here
+                trace("No save file");
+            }
+        });
+
+        menu.addItem("EXIT", function() {
+            hxd.System.exit();
+        });
     }
 
     override function update(dt:Float) {
-        for (i in 0...items.length) {
-            items[i].textColor = (i == selected) ? 0xFFFF00 : 0xFFFFFF;
-            if (i == 1 && !Game.hasSave()) items[i].textColor = 0x555555; // Dim continue if no save
-        }
-
-        if (hxd.Key.isPressed(hxd.Key.UP)) selected = (selected - 1 + items.length) % items.length;
-        if (hxd.Key.isPressed(hxd.Key.DOWN)) selected = (selected + 1) % items.length;
-        if (hxd.Key.isPressed(hxd.Key.ENTER)) menuOptions[selected].action();
-    }
-
-    function onNewGame() {
-        Game.newGame();
-        Main.inst.setScene(new StoryScene("You enter the cursed dungeon...
-Floor " + Game.level, new PlayScene()));
-    }
-
-    function onContinue() {
-        if (!Game.hasSave()) return;
-        Game.load();
-        Main.inst.setScene(new PlayScene());
-    }
-
-    function onSettings() {
-        Main.inst.setScene(new StoryScene("Settings:
-Sound: ON
-Graphics: RETRO
-
-(Press SPACE to return)", new MenuScene()));
-    }
-
-    function onExit() {
-        System.exit();
+        if (Key.isPressed(Key.UP)) menu.prev();
+        if (Key.isPressed(Key.DOWN)) menu.next();
+        if (Key.isPressed(Key.ENTER)) menu.trigger();
     }
 }
