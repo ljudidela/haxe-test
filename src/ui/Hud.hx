@@ -1,41 +1,36 @@
 package ui;
 
-import h2d.Flow;
-import h2d.Text;
-import hxd.res.DefaultFont;
-
 class Hud extends h2d.Object {
-    var flow:Flow;
-    var hpText:Text;
-    var levelText:Text;
-    var floorText:Text;
-    var msgText:Text;
+    var hpText:h2d.Text;
+    var lvlText:h2d.Text;
+    var goldText:h2d.Text;
 
     public function new(parent:h2d.Object) {
         super(parent);
+        var font = hxd.res.DefaultFont.get();
         
-        flow = new Flow(this);
-        flow.layout = Horizontal;
-        flow.padding = 10;
-        flow.spacing = 20;
-        flow.y = Const.GRID_H * Const.TILE_SIZE;
+        var bg = new h2d.Bitmap(h2d.Tile.fromColor(0x333333, Const.UI_WIDTH, 720), this);
         
-        var font = DefaultFont.get();
-        
-        hpText = new Text(font, flow);
-        levelText = new Text(font, flow);
-        floorText = new Text(font, flow);
-        msgText = new Text(font, flow);
-        msgText.textColor = Const.C_HIGHLIGHT;
+        hpText = new h2d.Text(font, this);
+        hpText.scale(2);
+        hpText.x = 10;
+        hpText.y = 10;
+
+        lvlText = new h2d.Text(font, this);
+        lvlText.scale(2);
+        lvlText.x = 10;
+        lvlText.y = 50;
+
+        goldText = new h2d.Text(font, this);
+        goldText.scale(2);
+        goldText.x = 10;
+        goldText.y = 90;
     }
 
-    public function updateStats(hp:Int, max:Int, lvl:Int, floor:Int) {
-        hpText.text = "HP: " + hp + " / " + max;
-        levelText.text = "LVL: " + lvl;
-        floorText.text = "FLOOR: " + floor;
-    }
-
-    public function showMessage(msg:String) {
-        msgText.text = msg;
+    public function updateStats() {
+        var g = core.Game.inst;
+        hpText.text = "HP: " + g.hp + " / " + g.maxHp;
+        lvlText.text = "FLOOR: " + g.level;
+        goldText.text = "GOLD: " + g.gold;
     }
 }
